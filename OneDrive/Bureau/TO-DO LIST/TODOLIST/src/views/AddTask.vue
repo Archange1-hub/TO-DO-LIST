@@ -1,37 +1,77 @@
 <template>
  <div class="page2">
-    <div class="etete">
-        <h2>AJOUTER UNE TÂCHE</h2>
-    </div>
-    <div class="form">
-        <form action="tasks.ts">
-           <div class="put">
-             <label>Nom de la tâche:</label>
-            <input type="text" name="nom" id="nom" placeholder="Ex: reorganisation du bureaut de travail, etc..." required>
-           </div> <br> 
-           <div class="put">
-             <label>Description:</label>
-            <input type="textarea" name="description" id="description" required>
-           </div> <br> 
-           <div class="put">
-             <label>Statut:</label> <br>
-            <span>A venir:</span><input type="checkbox" name="avenir" id="statut" required> |
-            <span>En cours:</span><input type="checkbox" name="encours" id="statut" required> |
-            <span>Terminé:</span><input type="checkbox" name="termine" id="statut" required>
-           </div> <br> 
-           <div class="put">
-             <label>Personnes assignées:</label>
-            <input type="text" name="personne" id="personne" placeholder="Ex: Monsieur le directeur..." required>
-           </div> <br>
-            <div class="buton">
-            <button><router-link to="/">Ajouter</router-link></button>
-        </div>
-         </form> 
-    </div>
-       
-       
+   
+  <div>
+    <h2>Ajouter une tâche</h2>
+
+    <form @submit.prevent="ajouterTache">
+      <label>Nom :</label>
+      <input v-model="nom" required /> <br> <br>
+
+      <label>Description :</label>
+      <textarea v-model="description" required></textarea> <br> <br>
+
+      <label>Statut :</label>
+      <select v-model="statut" required>
+        <option value="à venir">À venir</option>
+        <option value="en cours">En cours</option>
+        <option value="terminé">Terminé</option>
+      </select> <br> <br>
+
+      <label>Personnes assignées :</label>
+      <input v-model="personnes" required /> <br> <br>
+
+      <button type="submit">Ajouter</button>
+    </form>
+  </div>  
  </div>
 </template>
+<script setup>
+import { ref } from 'vue'
+import { useTaskStore } from '@/stores/tasks'
+import { useRouter } from 'vue-router'
+
+// Références des champs
+const nom = ref('')
+const description = ref('')
+const statut = ref('à venir')
+const personnes = ref('')
+
+// Accès au store
+const taskStore = useTaskStore()
+
+// Router pour rediriger après ajout
+const router = useRouter()
+
+// Fonction d'ajout
+function ajouterTache() {
+  if (!nom.value || !description.value || !personnes.value) {
+    alert('Veuillez remplir tous les champs')
+    return
+  }
+
+  // Création d'une tâche
+  const nouvelleTache = {
+    id: Date.now(),
+    nom: nom.value,
+    description: description.value,
+    statut: statut.value,
+    personnes: personnes.value,
+  }
+
+  // Envoi au store
+  taskStore.addTask(nouvelleTache)
+
+  // Nettoyer le formulaire
+  nom.value = ''
+  description.value = ''
+  statut.value = 'à venir'
+  personnes.value = ''
+
+  // Rediriger vers l'accueil
+  router.push('/home')
+}
+</script>
 <style scoped>
 .page2{
     color: black;
